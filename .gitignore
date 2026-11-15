@@ -1,0 +1,37 @@
+# Internal team planning notes: keep out of the public repo
+/PULSE_*.md
+
+# Never commit QNX SDP binaries, libraries, licences or target images
+qnx800/
+.qnx/
+*.qnx-license
+*.ifs
+*.img
+*.qcow2
+
+# Build outputs
+build/
+*.o
+*.a
+*.so
+qnx-target/**/out/
+qnx-target/**/pulse-core
+qnx-target/**/pulse-probe
+
+# Run outputs (commit curated datasets under demo-data/ only)
+runs/
+*.kev
+
+# Node / Forge
+node_modules/
+.forge/
+*.log
+
+# Python
+__pycache__/
+.venv/
+*.pyc
+
+# Secrets
+.env
+.env.*

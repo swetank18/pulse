@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pulse.dev/contracts/test_vectors/vector.schema.json",
+  "title": "PULSE verdict test vector",
+  "description": "Either a verdict case (valid evidence, expected verdict per requirement) or a rejection case (invalid evidence, expected error code).",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "description", "requirements", "evidence", "expected"],
+      "properties": {
+        "name": { "$ref": "#/$defs/name" },
+        "description": { "type": "string", "minLength": 1 },
+        "requirements": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "../requirement.schema.json" }
+        },
+        "evidence": { "$ref": "../evidence.schema.json" },
+        "expected": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["req_id", "status", "reasons"],
+            "properties": {
+              "req_id": { "type": "string" },
+              "status": { "enum": ["pass", "at_risk", "fail", "no_data"] },
+              "reasons": {
+                "type": "array",
+                "items": {
+                  "enum": [
+                    "task_missing",
+                    "no_samples",
+                    "latency_exceeded",
+                    "deadline_misses_exceeded",
+                    "near_limit",
+                    "anomaly"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "description", "evidence", "expected_error"],
+      "properties": {
+        "name": { "$ref": "#/$defs/name" },
+        "description": { "type": "string", "minLength": 1 },
+        "evidence": {},
+        "expected_error": {
+          "enum": [
+            "unsupported_schema_version",
+            "schema_invalid",
+            "duplicate_task_id",
+            "latency_samples_mismatch",
+            "latency_order",
+            "anomaly_unknown_task",
+            "trace_unknown_task"
+          ]
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "name": { "type": "string", "pattern": "^[a-z0-9_]{1,80}$" }
+  }
+}

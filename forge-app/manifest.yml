@@ -1,0 +1,27 @@
+# PULSE Forge app manifest. Owner: Dev 3.
+# Dev 1: request UI modules by opening a PR that adds the entry; Dev 3 reviews and merges.
+#
+# app.id is a placeholder. Run `forge register` in forge-app/ once to replace it with the
+# real id (the CLI rewrites this line).
+
+modules:
+  webtrigger:
+    - key: pulse-ingest
+      function: ingest
+      urlFormat: v2
+      response:
+        type: dynamic   # needed for the status codes in contracts/push_api.md (see its open item 1)
+  function:
+    - key: ingest
+      handler: backend/index.ingest
+
+app:
+  id: ari:cloud:ecosystem::app/00000000-0000-0000-0000-000000000000
+  runtime:
+    name: nodejs22.x
+    memoryMB: 256
+    architecture: arm64
+
+permissions:
+  scopes:
+    - storage:app

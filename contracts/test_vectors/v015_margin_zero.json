@@ -1,0 +1,88 @@
+{
+  "name": "v015_margin_zero",
+  "description": "With margin 0, near_limit applies only when max equals the limit.",
+  "requirements": [
+    {
+      "req_id": "REQ-BRK-001",
+      "title": "Brake command latency",
+      "task_id": "brake_ctrl",
+      "max_latency_us": 2000,
+      "max_deadline_misses": 0,
+      "at_risk_margin_pct": 0,
+      "owner": null,
+      "owner_name": "Brakes team",
+      "jira_issue": "PULSE-12",
+      "source_note": "research/brake.md"
+    },
+    {
+      "req_id": "REQ-FUS-001",
+      "title": "Sensor fusion cycle",
+      "task_id": "sensor_fusion",
+      "max_latency_us": 5000,
+      "max_deadline_misses": 0,
+      "at_risk_margin_pct": 0,
+      "owner": null,
+      "owner_name": "Brakes team",
+      "jira_issue": "PULSE-13",
+      "source_note": "research/brake.md"
+    }
+  ],
+  "evidence": {
+    "schema_version": "1.0",
+    "run_id": "run-0007",
+    "build_id": "a1b2c3d",
+    "origin": "synthetic",
+    "target": "qemu-x86_64",
+    "qnx_version": "8.0",
+    "started_at": "2026-11-14T10:15:00Z",
+    "duration_s": 60,
+    "faults_injected": [],
+    "tasks": [
+      {
+        "task_id": "brake_ctrl",
+        "priority": 50,
+        "period_us": 1000,
+        "deadline_us": 2000,
+        "samples": 60000,
+        "latency_us": {
+          "min": 41,
+          "p50": 62,
+          "p99": 180,
+          "max": 1999
+        },
+        "jitter_us": 95,
+        "deadline_misses": 0
+      },
+      {
+        "task_id": "sensor_fusion",
+        "priority": 40,
+        "period_us": 5000,
+        "deadline_us": 5000,
+        "samples": 12000,
+        "latency_us": {
+          "min": 120,
+          "p50": 300,
+          "p99": 900,
+          "max": 5000
+        },
+        "jitter_us": 140,
+        "deadline_misses": 0
+      }
+    ],
+    "anomalies": []
+  },
+  "expected": [
+    {
+      "req_id": "REQ-BRK-001",
+      "status": "pass",
+      "reasons": []
+    },
+    {
+      "req_id": "REQ-FUS-001",
+      "status": "at_risk",
+      "reasons": [
+        "near_limit"
+      ]
+    }
+  ]
+}

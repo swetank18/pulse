@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pulse.dev/contracts/requirement.schema.json",
+  "title": "PULSE timing requirement",
+  "description": "One timing requirement bound to one pulse-core task. Verdicts are computed per requirement per run (see verdict_rules.md).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "req_id",
+    "title",
+    "task_id",
+    "max_latency_us",
+    "max_deadline_misses",
+    "at_risk_margin_pct",
+    "owner",
+    "jira_issue"
+  ],
+  "properties": {
+    "req_id": {
+      "type": "string",
+      "pattern": "^REQ-[A-Z0-9]+(-[A-Z0-9]+)*$",
+      "maxLength": 48,
+      "examples": ["REQ-BRK-001"]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{0,63}$",
+      "description": "Matches tasks[].task_id in evidence records."
+    },
+    "max_latency_us": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Upper bound on latency_us.max."
+    },
+    "max_deadline_misses": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "at_risk_margin_pct": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "at_risk when latency_us.max is within this percentage of max_latency_us (inclusive)."
+    },
+    "owner": {
+      "type": ["string", "null"],
+      "minLength": 1,
+      "maxLength": 128,
+      "description": "Atlassian account id of the owner. null when not yet assigned (for example demo data loaded on a site where the owner does not exist)."
+    },
+    "owner_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "description": "Optional display name. Used when owner is null or cannot be resolved on this site."
+    },
+    "jira_issue": {
+      "type": ["string", "null"],
+      "pattern": "^[A-Z][A-Z0-9_]+-[1-9][0-9]*$",
+      "description": "Jira work item key that holds this requirement, e.g. PULSE-12. null when not linked yet."
+    },
+    "source_note": {
+      "type": "string",
+      "maxLength": 256,
+      "description": "Optional path or URL to the research note that justifies the limit, e.g. research/brake.md."
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "pulse-forge-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PULSE for Jira: live RTOS timing evidence per requirement (Forge app)",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test test/",
+    "lint": "forge lint"
+  },
+  "dependencies": {
+    "@forge/kvs": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

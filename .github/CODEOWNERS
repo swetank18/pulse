@@ -1,0 +1,34 @@
+# One owner per folder. The owner reviews every pull request into their folder.
+# GitHub requests the owner's review automatically on every PR that touches their folder.
+#
+# Dev 1 = UI (@devanshpathak18), Dev 2 = Simulation and Research (@UtkarshOver9000),
+# Dev 3 = Backend, QNX Core, Integration (@swetank18).
+
+# Default: Dev 3 (repo setup, licence, anything not listed below)
+*                           @swetank18
+
+# Dev 3
+/LICENSE                    @swetank18
+/.github/                   @swetank18
+/contracts/                 @swetank18
+/qnx-target/                @swetank18
+/forge-app/manifest.yml     @swetank18
+/forge-app/src/backend/     @swetank18
+/forge-app/test/            @swetank18
+/docs/architecture.md       @swetank18
+/docs/qnx-evidence-map.md   @swetank18
+
+# Dev 2
+/README.md                  @UtkarshOver9000
+/sim/                       @UtkarshOver9000
+/host-collector/            @UtkarshOver9000
+/research/                  @UtkarshOver9000
+/demo-data/                 @UtkarshOver9000
+/docs/build-and-run.md      @UtkarshOver9000
+/docs/forge-setup.md        @UtkarshOver9000
+/docs/tutorial.md           @UtkarshOver9000
+
+# Dev 1
+/forge-app/src/frontend/    @devanshpathak18
+/forge-app/static/          @devanshpathak18
+/media/                     @devanshpathak18

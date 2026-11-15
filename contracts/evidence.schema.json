@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pulse.dev/contracts/evidence.schema.json",
+  "title": "PULSE evidence record",
+  "description": "One record per pulse-core run. Written by pulse-core (anomalies empty), completed by the host collector (anomalies filled), stored by the Forge backend. All times are integer microseconds, rounded UP from the measured value so the record never understates worst case timing. Semantic rules the schema cannot express are listed in verdict_rules.md section 1.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "build_id",
+    "origin",
+    "target",
+    "qnx_version",
+    "started_at",
+    "duration_s",
+    "faults_injected",
+    "tasks",
+    "anomalies"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "run_id": {
+      "$ref": "#/$defs/id",
+      "description": "Unique per run across all builds and targets, e.g. run-0007 or 20261114T101500Z-qemu."
+    },
+    "build_id": {
+      "$ref": "#/$defs/id",
+      "description": "Identifies the software build under test, e.g. a short git SHA."
+    },
+    "origin": {
+      "enum": ["device", "synthetic"],
+      "description": "device = measured by pulse-core on QNX (QEMU or hardware). synthetic = produced by sim/generator. The UI must label synthetic data."
+    },
+    "target": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+      "examples": ["qemu-x86_64", "qemu-aarch64", "rpi5-aarch64", "synthetic"]
+    },
+    "qnx_version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 32,
+      "examples": ["8.0"]
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC 3339 / ISO 8601 UTC timestamp with Z suffix, e.g. 2026-11-14T10:15:00Z."
+    },
+    "duration_s": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "faults_injected": {
+      "type": "array",
+      "description": "Fault names applied by pulse-load during the run; empty for a clean run.",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9_]{1,64}$"
+      },
+      "uniqueItems": true
+    },
+    "tasks": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/task" }
+    },
+    "anomalies": {
+      "type": "array",
+      "description": "Empty when written by pulse-core. Filled by the host collector's anomaly detector.",
+      "items": { "$ref": "#/$defs/anomaly" }
+    },
+    "trace": {
+      "type": "object",
+      "description": "Optional pointer to the kernel event trace captured during this run.",
+      "additionalProperties": false,
+      "required": ["file", "task_ids"],
+      "properties": {
+        "file": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "task_ids": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/task_id" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "producer": {
+      "type": "object",
+      "description": "Optional. The program that wrote the record.",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "version": { "type": "string", "minLength": 1, "maxLength": 32 }
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{0,63}$"
+    },
+    "us": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_id",
+        "priority",
+        "period_us",
+        "deadline_us",
+        "samples",
+        "latency_us",
+        "jitter_us",
+        "deadline_misses"
+      ],
+      "properties": {
+        "task_id": { "$ref": "#/$defs/task_id" },
+        "priority": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 255,
+          "description": "SCHED_FIFO priority the task ran at."
+        },
+        "period_us": { "type": "integer", "minimum": 1 },
+        "deadline_us": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Relative deadline, measured from the scheduled release time."
+        },
+        "samples": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of jobs that completed during the run. Latency statistics cover these jobs."
+        },
+        "latency_us": {
+          "description": "Response latency statistics over completed jobs: completion time minus scheduled release time. null if and only if samples is 0.",
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["min", "p50", "p99", "max"],
+              "properties": {
+                "min": { "$ref": "#/$defs/us" },
+                "p50": { "$ref": "#/$defs/us" },
+                "p99": { "$ref": "#/$defs/us" },
+                "max": { "$ref": "#/$defs/us" }
+              }
+            }
+          ]
+        },
+        "jitter_us": {
+          "$ref": "#/$defs/us",
+          "description": "Population standard deviation of the latency samples, rounded up. 0 when samples is 0."
+        },
+        "deadline_misses": {
+          "$ref": "#/$defs/us",
+          "description": "Jobs whose latency exceeded deadline_us, plus jobs released but not completed when the run ended."
+        }
+      }
+    },
+    "anomaly": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["task_id", "kind", "message"],
+      "properties": {
+        "task_id": { "$ref": "#/$defs/task_id" },
+        "kind": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{0,63}$",
+          "examples": ["latency_drift", "jitter_increase"]
+        },
+        "score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Optional detector confidence, 0 to 1."
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "description": "Plain English explanation shown in the UI and used by the agent."
+        },
+        "detector": {
+          "type": "string",
+          "maxLength": 64,
+          "description": "Optional detector name and version, e.g. rolling-baseline-v1."
+        }
+      }
+    }
+  }
+}

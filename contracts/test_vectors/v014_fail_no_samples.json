@@ -1,0 +1,86 @@
+{
+  "name": "v014_fail_no_samples",
+  "description": "logger was starved by a higher priority hog and never completed a job.",
+  "requirements": [
+    {
+      "req_id": "REQ-BRK-001",
+      "title": "Brake command latency",
+      "task_id": "brake_ctrl",
+      "max_latency_us": 2000,
+      "max_deadline_misses": 0,
+      "at_risk_margin_pct": 20,
+      "owner": null,
+      "owner_name": "Brakes team",
+      "jira_issue": "PULSE-12",
+      "source_note": "research/brake.md"
+    },
+    {
+      "req_id": "REQ-LOG-001",
+      "title": "Logger flush latency",
+      "task_id": "logger",
+      "max_latency_us": 100000,
+      "max_deadline_misses": 0,
+      "at_risk_margin_pct": 10,
+      "owner": null,
+      "owner_name": "Brakes team",
+      "jira_issue": "PULSE-14",
+      "source_note": "research/brake.md"
+    }
+  ],
+  "evidence": {
+    "schema_version": "1.0",
+    "run_id": "run-0007",
+    "build_id": "a1b2c3d",
+    "origin": "synthetic",
+    "target": "qemu-x86_64",
+    "qnx_version": "8.0",
+    "started_at": "2026-11-14T10:15:00Z",
+    "duration_s": 60,
+    "faults_injected": [
+      "cpu_hog_prio_20"
+    ],
+    "tasks": [
+      {
+        "task_id": "brake_ctrl",
+        "priority": 50,
+        "period_us": 1000,
+        "deadline_us": 2000,
+        "samples": 60000,
+        "latency_us": {
+          "min": 41,
+          "p50": 62,
+          "p99": 180,
+          "max": 1430
+        },
+        "jitter_us": 95,
+        "deadline_misses": 0
+      },
+      {
+        "task_id": "logger",
+        "priority": 10,
+        "period_us": 100000,
+        "deadline_us": 100000,
+        "samples": 0,
+        "latency_us": null,
+        "jitter_us": 0,
+        "deadline_misses": 600
+      }
+    ],
+    "anomalies": []
+  },
+  "expected": [
+    {
+      "req_id": "REQ-BRK-001",
+      "status": "pass",
+      "reasons": []
+    },
+    {
+      "req_id": "REQ-LOG-001",
+      "status": "fail",
+      "reasons": [
+        "no_samples",
+        "deadline_misses_exceeded"
+      ]
+    }
+  ]
+}
